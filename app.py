@@ -1,11 +1,17 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from logic import get_recommendations
 
 @st.cache_data
 def load_data(file):
     return pd.read_csv(file)
 
+@st.cache_data
+def compute_correlation_matrix(_df, _cols):
+    corr_matrix = _df[_cols].corr()
+    fig = px.imshow(corr_matrix, text_auto=True, color_continuous_scale='RdBu_r')
+    return fig
 
 file = st.file_uploader("Upload your CSV file", type=["csv"])
 
@@ -31,10 +37,12 @@ if file is not None:
 
     elif choice == "Categorical(Labels)":
         selected_col = st.sidebar.selectbox("Pick a category column", cat_cols)
+        recommendations = get_recommendations(df, selected_col)
     elif choice == "Numerical(Numbers)":
         selected_col = st.sidebar.selectbox("Pick a number column", num_cols)
+        recommendations = get_recommendations(df, selected_col)
 
-    tab1, tab2, tab3 = st.tabs(["Data Overview", "Summary Stats", "Visualizations"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Data Overview", "Summary Stats", "Visualizations", "Recommendations"])
 
     if choice != "Numerical(Numbers)" and choice != "Categorical(Labels)":
         st.info("Please select an option to explore the data.")
@@ -124,8 +132,7 @@ if file is not None:
 
                     st.header("Correlation Matrix")
                     if num_cols.shape[0] > 1:
-                        corr_matrix = df[num_cols].corr()
-                        fig3 = px.imshow(corr_matrix, text_auto=True, color_continuous_scale='RdBu_r')
+                        fig3 = compute_correlation_matrix(df, num_cols)
                         st.plotly_chart(fig3)
                         charts_html3 = fig3.to_html(full_html=True)
                         st.download_button(
@@ -151,3 +158,10 @@ if file is not None:
                         data=charts_html,
                         file_name=f"{selected_col}_value_counts.html"
                     )
+        with tab4:
+            st.header("Recommendations for the Column")
+            if recommendations:
+                for rec in recommendations:
+                    st.info("- " + rec)
+            else:
+                st.success("The column is ready for ML modeling.")
