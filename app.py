@@ -18,6 +18,8 @@ file = st.file_uploader("Upload your CSV file", type=["csv"])
 if file is not None:
 
     df = load_data(file)
+    for col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors='ignore')
 
     num_cols = df.select_dtypes(include=['number']).columns
     cat_cols = df.select_dtypes(include=['object']).columns
@@ -113,7 +115,7 @@ if file is not None:
                 else:
                     st.header("Distribution Plot")
                     fig = px.histogram(df, x=selected_col, marginal="rug", nbins=30)
-                    st.plotly_chart(fig)
+                    st.plotly_chart(fig, use_container_width=True)
 
                     charts_html = fig.to_html(full_html=True)
                     st.download_button(
@@ -123,7 +125,7 @@ if file is not None:
 
                     st.header("Box Plot")
                     fig2 = px.box(df, y=selected_col)
-                    st.plotly_chart(fig2)
+                    st.plotly_chart(fig2, use_container_width=True)
                     charts_html2 = fig2.to_html(full_html=True)
                     st.download_button(
                     label="Download Box Plot as HTML",
@@ -133,7 +135,7 @@ if file is not None:
                     st.header("Correlation Matrix")
                     if num_cols.shape[0] > 1:
                         fig3 = compute_correlation_matrix(df, num_cols)
-                        st.plotly_chart(fig3)
+                        st.plotly_chart(fig3, use_container_width=True)
                         charts_html3 = fig3.to_html(full_html=True)
                         st.download_button(
                             label="Download Correlation Matrix as HTML",
@@ -151,7 +153,7 @@ if file is not None:
                     top10 = df[selected_col].value_counts().nlargest(10).reset_index()
                     top10.columns = [selected_col, 'count']
                     fig = px.bar(top10,x='count', y=selected_col, orientation='h')
-                    st.plotly_chart(fig)
+                    st.plotly_chart(fig, use_container_width=True)
                     charts_html = fig.to_html(full_html=True)
                     st.download_button(
                         label="Download Value Counts as HTML",
