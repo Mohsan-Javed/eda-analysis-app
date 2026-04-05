@@ -1,3 +1,14 @@
+---
+title: Eda Analysis App
+emoji: 📊
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: 1.31.0
+app_file: app.py
+pinned: false
+---
+
 # EDA Profiler
 
 EDA Profiler automates Exploratory Data Analysis on any CSV dataset, 
